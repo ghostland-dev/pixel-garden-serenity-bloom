@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PlantType, WeatherType, SeasonType } from '../types/game';
+import { PlantType, WeatherType, SeasonType, PLANT_DATA } from '../types/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

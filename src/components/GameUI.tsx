@@ -11,9 +11,9 @@ interface GameUIProps {
   serenityPoints: number;
   weather: WeatherType;
   inventory: Array<{ type: PlantType; count: number }>;
-  selectedTool: string;
+  selectedTool: 'plant' | 'water' | 'remove';
   selectedPlant: PlantType | null;
-  onToolSelect: (tool: string) => void;
+  onToolSelect: (tool: 'plant' | 'water' | 'remove') => void;
   onPlantSelect: (plant: PlantType) => void;
   onNextDay: () => void;
   onReset: () => void;

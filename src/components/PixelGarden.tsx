@@ -1,18 +1,38 @@
-
 import React, { useState } from 'react';
 import { useGameState } from '../hooks/useGameState';
 import { PlantType } from '../types/game';
 import GameGrid from './GameGrid';
 import GameUI from './GameUI';
 import ParticleEffect from './ParticleEffect';
+import Shop from './Shop';
+import Achievements from './Achievements';
+import Settings from './Settings';
 import { toast } from 'sonner';
 
 const PixelGarden: React.FC = () => {
-  const { gameState, plantSeed, waterPlant, removePlant, calculateHarmony, nextDay, resetGame } = useGameState();
+  const { 
+    gameState, 
+    plantSeed, 
+    waterPlant, 
+    removePlant, 
+    calculateHarmony, 
+    nextDay, 
+    resetGame,
+    purchaseItem,
+    toggleSound,
+    saveGame,
+    loadGame,
+    exportSave,
+    importSave
+  } = useGameState();
+  
   const [selectedTool, setSelectedTool] = useState<'plant' | 'water' | 'remove'>('plant');
   const [selectedPlant, setSelectedPlant] = useState<PlantType>('rose');
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [particleType, setParticleType] = useState<'water' | 'plant' | 'harvest' | 'visitor'>('plant');
+  const [showShop, setShowShop] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const triggerParticles = (type: 'water' | 'plant' | 'harvest' | 'visitor') => {
     setParticleType(type);
@@ -99,10 +119,15 @@ const PixelGarden: React.FC = () => {
       triggerParticles('visitor');
     }
     
+    // Season change notification
+    const newSeason = gameState.season;
+    const seasonEmojis = { spring: '🌸', summer: '☀️', autumn: '🍂', winter: '❄️' };
+    
     toast.success(`🌅 Bienvenue au jour ${gameState.day + 1} !`, {
-      description: `Harmonie: +${newHarmony - oldHarmony} pts • Nouveaux visiteurs: ${newVisitors - oldVisitors}`
+      description: `${seasonEmojis[newSeason]} ${newSeason === 'spring' ? 'Printemps' : newSeason === 'summer' ? 'Été' : newSeason === 'autumn' ? 'Automne' : 'Hiver'} • Harmonie: +${newHarmony - oldHarmony} pts`
     });
     
+    // Weather notifications
     if (gameState.weather === 'rainy') {
       toast.info('🌧️ La pluie bénit votre jardin !', {
         description: 'Vos plantes vont pousser plus vite aujourd\'hui'
@@ -110,6 +135,10 @@ const PixelGarden: React.FC = () => {
     } else if (gameState.weather === 'drought') {
       toast.warning('☀️💨 Attention à la sécheresse !', {
         description: 'Vos plantes ont besoin d\'eau urgente'
+      });
+    } else if (gameState.weather === 'storm') {
+      toast.warning('⛈️ Orage en approche !', {
+        description: 'Vos plantes risquent d\'être endommagées'
       });
     }
   };
@@ -134,6 +163,7 @@ const PixelGarden: React.FC = () => {
               actionsRemaining={gameState.actionsRemaining}
               serenityPoints={gameState.serenityPoints}
               weather={gameState.weather}
+              season={gameState.season}
               inventory={gameState.inventory}
               selectedTool={selectedTool}
               selectedPlant={selectedPlant}
@@ -141,6 +171,9 @@ const PixelGarden: React.FC = () => {
               onPlantSelect={setSelectedPlant}
               onNextDay={handleNextDay}
               onReset={handleReset}
+              onShowShop={() => setShowShop(true)}
+              onShowAchievements={() => setShowAchievements(true)}
+              onShowSettings={() => setShowSettings(true)}
               harmony={calculateHarmony()}
               totalPlants={totalPlants}
               floweringPlants={floweringPlants}
@@ -161,6 +194,19 @@ const PixelGarden: React.FC = () => {
                 selectedTool={selectedTool}
               />
               
+              {/* Indicateurs de saison */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg shadow-md">
+                <p className="text-sm text-indigo-700 font-medium">
+                  {gameState.season === 'spring' ? '🌸 Printemps' : 
+                   gameState.season === 'summer' ? '☀️ Été' : 
+                   gameState.season === 'autumn' ? '🍂 Automne' : '❄️ Hiver'} • 
+                  {gameState.weather === 'sunny' ? ' ☀️ Ensoleillé' :
+                   gameState.weather === 'rainy' ? ' 🌧️ Pluvieux' :
+                   gameState.weather === 'drought' ? ' 🏜️ Sécheresse' :
+                   gameState.weather === 'cloudy' ? ' ☁️ Nuageux' : ' ⛈️ Orageux'}
+                </p>
+              </div>
+
               {/* Indicateurs de visiteurs améliorés */}
               {gameState.visitors.length > 0 && (
                 <div className="mt-6 p-4 bg-gradient-to-r from-yellow-100 to-amber-100 bg-opacity-90 rounded-xl shadow-lg border-2 border-yellow-200 animate-fade-in">
@@ -196,6 +242,37 @@ const PixelGarden: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {showShop && (
+        <Shop
+          serenityPoints={gameState.serenityPoints}
+          shopItems={gameState.shopItems}
+          onPurchase={purchaseItem}
+          onClose={() => setShowShop(false)}
+        />
+      )}
+
+      {showAchievements && (
+        <Achievements
+          achievements={gameState.achievements}
+          onClose={() => setShowAchievements(false)}
+        />
+      )}
+
+      {showSettings && (
+        <Settings
+          soundEnabled={gameState.soundEnabled}
+          saveSlot={gameState.saveSlot}
+          onSoundToggle={toggleSound}
+          onSaveSlotChange={(slot) => gameState.saveSlot = slot}
+          onSaveGame={saveGame}
+          onLoadGame={loadGame}
+          onExportSave={exportSave}
+          onImportSave={importSave}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 };

@@ -57,6 +57,15 @@ const PixelGarden: React.FC = () => {
 
   const { total: totalPlants, flowering: floweringPlants } = countPlants();
 
+  // Filter visitors to only include types that GameGrid expects
+  const compatibleVisitors = gameState.visitors.filter(visitor => 
+    visitor.type === 'butterfly' || visitor.type === 'bird'
+  ).map(visitor => ({
+    id: visitor.id,
+    type: visitor.type as 'butterfly' | 'bird',
+    position: visitor.position
+  }));
+
   const handleCellClick = (x: number, y: number) => {
     if (gameState.actionsRemaining <= 0) {
       toast.error("Plus d'actions disponibles aujourd'hui !", {
@@ -189,7 +198,7 @@ const PixelGarden: React.FC = () => {
               </h1>
               <GameGrid
                 grid={gameState.grid}
-                visitors={gameState.visitors}
+                visitors={compatibleVisitors}
                 onCellClick={handleCellClick}
                 selectedTool={selectedTool}
               />
@@ -220,7 +229,9 @@ const PixelGarden: React.FC = () => {
                         className="text-2xl animate-bounce" 
                         style={{ animationDelay: `${Math.random() * 2}s` }}
                       >
-                        {visitor.type === 'butterfly' ? '🦋' : '🐦'}
+                        {visitor.type === 'butterfly' ? '🦋' : 
+                         visitor.type === 'bird' ? '🐦' :
+                         visitor.type === 'bee' ? '🐝' : '🐞'}
                       </span>
                     ))}
                   </div>

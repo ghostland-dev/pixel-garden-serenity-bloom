@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PlantType, WeatherType, PLANT_DATA } from '../types/game';
+import { PlantType, WeatherType, SeasonType } from '../types/game';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ interface GameUIProps {
   actionsRemaining: number;
   serenityPoints: number;
   weather: WeatherType;
+  season: SeasonType;
   inventory: Array<{ type: PlantType; count: number }>;
   selectedTool: 'plant' | 'water' | 'remove';
   selectedPlant: PlantType | null;
@@ -19,6 +20,9 @@ interface GameUIProps {
   onPlantSelect: (plant: PlantType) => void;
   onNextDay: () => void;
   onReset: () => void;
+  onShowShop: () => void;
+  onShowAchievements: () => void;
+  onShowSettings: () => void;
   harmony: number;
   totalPlants: number;
   floweringPlants: number;
